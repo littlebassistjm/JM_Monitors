@@ -3,10 +3,12 @@
  */
 public class Passenger extends Thread{
 
-    Station station;
+    public Station station;
+    public int passenger_id;
 
-    public Passenger(Station station){
+    public Passenger(Station station, int passenger_id){
         this.station = station;
+        this.passenger_id = passenger_id;
     }
 
     @Override

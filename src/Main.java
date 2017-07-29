@@ -8,17 +8,36 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException {
 
-        //ArrayList<Station> stations = new ArrayList<Station>();
-        //ArrayList<Train> trains = new ArrayList<Train>();
+        int num_passengers=2;
+        int num_trains=1;
+        int num_max_seats=2;
+        int num_stations=1;
+
+        ArrayList<Station> stations = new ArrayList<Station>();
+        ArrayList<Train> trains = new ArrayList<Train>();
+        ArrayList<Passenger> passengers = new ArrayList<>();
 
         Station station = new Station(1);
-        Passenger passenger = new Passenger(station);
-        Train train = new Train(1, 1, station);
 
-        passenger.start();
+        for(int i=0; i<num_passengers; i++){
+            passengers.add(new Passenger(station, i+1));
+        }
+        Train train = new Train(1, num_max_seats, station);
 
-        train.start();
-        passenger.join();
-        train.join();
+        // START THREADS
+        //passengers
+            for(int i=0; i<num_passengers; i++){
+                passengers.get(i).start();
+            }
+        //trains
+            train.start();
+
+        // JOIN THREADS
+        //passengers
+            for(int i=0; i<num_passengers; i++){
+                passengers.get(i).join();
+            }
+        //trains
+            train.join();
     }
 }

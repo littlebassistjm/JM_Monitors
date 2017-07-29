@@ -45,6 +45,7 @@ public class Station {
             if (waiting_passengers > 0) {
                 start_boarding();
             }
+            else return;
             current_train.wait(); // wait while passengers are boarding
         }
 
@@ -52,18 +53,19 @@ public class Station {
         synchronized (this) {
             notify();
         }
-        System.out.println("TEST");
+        System.out.println("Next train may now enter");
+        System.out.println("===============================");
     }
 
     public void wait_for_train(Passenger passenger) throws InterruptedException {
         synchronized (this) {
             waiting_passengers++;
             list_waiting_passengers.add(passenger);
-            System.out.println("Passenger " + waiting_passengers + " is now waiting for the train is Station " + station_id + ".");
+            System.out.println("Passenger " + passenger.passenger_id + " is now waiting for the train is Station " + station_id + ".");
             if (!station_occupied) wait();
             else wait();
         }
-        System.out.println("Passenger " + waiting_passengers + " has been called to board");
+        System.out.println("Passenger " + passenger.passenger_id + " has been called to board");
         on_board();
     }
 
@@ -75,23 +77,24 @@ public class Station {
     }
 
     public void on_board() {
-        System.out.println("Passenger " + waiting_passengers + " is boarding.");
+        System.out.println("Passenger " + list_waiting_passengers.get(0).passenger_id + " is boarding.");
+
         synchronized (this) {
             waiting_passengers--;
-            //list_waiting_passengers.remove(0);
+            list_waiting_passengers.remove(0);
             System.out.println("Remaining passengers: " + waiting_passengers);
         }
+
         if (waiting_passengers == 0) {
             synchronized (current_train) {
                 current_train.notify();
             }
             System.out.println("Train " + current_train.TRAIN_ID + " has left Station " + station_id);
         } else {
-            synchronized (list_waiting_passengers.get(0)) {
-                list_waiting_passengers.get(0).notify();
+            synchronized (this) {
+                notify();
             }
         }
-
 
     }
 
