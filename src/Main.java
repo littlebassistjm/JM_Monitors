@@ -18,10 +18,14 @@ public class Main {
         ArrayList<Passenger> passengers = new ArrayList<>();
 
         Station station = new Station(1);
-
-        for(int i=0; i<num_passengers; i++){
-            passengers.add(new Passenger(station, i+1));
-        }
+        // create passenger threads
+            for(int i=0; i<num_passengers; i++){
+                passengers.add(new Passenger(station, i+1));
+            }
+         // create train threads
+            for(int i=0; i<num_trains; i++){
+                trains.add(new Train((i+1),num_max_seats, station));
+            }
         Train train = new Train(1, num_max_seats, station);
 
         // START THREADS
