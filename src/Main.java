@@ -26,7 +26,6 @@ public class Main {
             for(int i=0; i<num_trains; i++){
                 trains.add(new Train((i+1),num_max_seats, station));
             }
-        Train train = new Train(1, num_max_seats, station);
 
         // START THREADS
         //passengers
@@ -34,7 +33,9 @@ public class Main {
                 passengers.get(i).start();
             }
         //trains
-            train.start();
+            for(int i=0; i<num_trains; i++){
+                trains.get(i).start();
+            }
 
         // JOIN THREADS
         //passengers
@@ -42,6 +43,8 @@ public class Main {
                 passengers.get(i).join();
             }
         //trains
-            train.join();
+        for(int i=0; i<num_trains; i++){
+            trains.get(i).join();
+        }
     }
 }
