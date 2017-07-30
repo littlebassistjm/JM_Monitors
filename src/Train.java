@@ -23,6 +23,8 @@ public class Train extends Thread {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        System.out.println("MOVEMENT: Train " + train_id + " is going to the next Station.");
     }
 
 }
