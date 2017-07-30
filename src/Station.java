@@ -53,7 +53,8 @@ public class Station {
                         list_waiting_trains.remove(current_train);
                         System.out.println("TRAIN: TRAIN " + train.train_id + " has occupied STATION " + station_id + ".");
                     // release previously boarded passengers
-                        current_train.available_seats = current_train.max_seats;
+                        current_train.available_seats = current_train.max_seats; // <-- CHANGE THIS IF NEEDED
+                        System.out.println("TRAIN: TRAIN " + train.train_id + " has released its passengers.");
                     // if there are waiting passengers, board
                         if (waiting_passengers>0) {
                             // start boarding
@@ -61,7 +62,7 @@ public class Station {
                             // wait while passengers are boarding
                             current_train_lock.wait();
                         } else { // if there are no waiting passengers, leave/do nothing
-
+                            System.out.println("TRAIN: There are no waiting PASSENGERS.");
                         }
                 }
                 System.out.println("LOCK EXIT CHECK: TRAIN " + train.train_id);
@@ -89,7 +90,7 @@ public class Station {
                 waiting_passengers++;
                 list_waiting_passengers.add(passenger);
             // wait for train
-                System.out.println("PASSENGER: PASSENGER " + passenger.passenger_id + " is now waiting to be called.");
+                System.out.println("PASSENGER: PASSENGER " + passenger.passenger_id + " is now waiting to be called in STATION " + station_id);
             if (train_boarding) {
                 passenger_lock.wait();
             } else {
@@ -98,7 +99,7 @@ public class Station {
                 }
             }
             // board
-                System.out.println("PASSENGER: PASSENGER " + passenger.passenger_id + " has been called to board");
+                System.out.println("PASSENGER: PASSENGER " + passenger.passenger_id + " has been called to board in STATION " + station_id);
                 on_board();
         }
     }
@@ -129,6 +130,11 @@ public class Station {
                 }
             // else notify train to leave (and return?)
                 else{
+                    if (waiting_passengers==0) {
+                        System.out.println("ON, BOARD: There are no more waiting PASSENGERS.");
+                    } else if (current_train.available_seats==0){
+                        System.out.println("ON, BOARD: " + current_train.available_seats + " has no more available seats.");
+                    }
                     synchronized (current_train_lock){
                         System.out.println("ON_BOARD, TRAIN LEAVING: TRAIN " + current_train.train_id);
                         current_train_lock.notify();

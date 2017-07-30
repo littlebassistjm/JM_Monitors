@@ -8,10 +8,10 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException {
 
-        int num_stations=1;
+        int num_stations=2;
         int num_trains=1;
-        int num_max_seats=1;
-        int num_passengers=1;
+        int num_max_seats=3;
+        int num_passengers=3;
 
         ArrayList<Station> stations = new ArrayList<>();
         ArrayList<Train> trains = new ArrayList<>();
@@ -27,7 +27,7 @@ public class Main {
             }
          // create train threads
             for(int i=0; i<num_trains; i++){
-                trains.add(new Train((i+1),num_max_seats, stations.get(i%num_stations)));
+                trains.add(new Train((i+1),num_max_seats, stations));
             }
 
         // START THREADS
