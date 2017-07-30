@@ -8,13 +8,13 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException {
 
-        int num_passengers=3;
-        int num_trains=3;
-        int num_max_seats=2;
         int num_stations=1;
+        int num_trains=1;
+        int num_max_seats=1;
+        int num_passengers=1;
 
-        ArrayList<Station> stations = new ArrayList<Station>();
-        ArrayList<Train> trains = new ArrayList<Train>();
+        ArrayList<Station> stations = new ArrayList<>();
+        ArrayList<Train> trains = new ArrayList<>();
         ArrayList<Passenger> passengers = new ArrayList<>();
 
         // create stations

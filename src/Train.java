@@ -3,14 +3,14 @@
  */
 public class Train extends Thread {
     int train_id;
-    int MAX_SEATS;
+    int max_seats;
     int available_seats;
     Station current_station = null;
 
-    public Train(int train_id, int MAX_SEATS, Station station){
+    public Train(int train_id, int max_seats, Station station){
         this.train_id = train_id;
-        this.MAX_SEATS = MAX_SEATS;
-        this.available_seats = MAX_SEATS;
+        this.max_seats = max_seats;
+        this.available_seats = max_seats;
         this.current_station = station;
     }
 

@@ -16,6 +16,7 @@ public class Station {
 
     private static Object train_lock = new Object();
     private static Object passenger_lock = new Object();
+    private static Object current_train_lock = new Object();
 
     Station(int station_id) {
         this.station_id = station_id;
@@ -29,98 +30,111 @@ public class Station {
 
     public void load_train(Train train) throws InterruptedException {
 
-        synchronized (this) {
+        synchronized (train_lock) {
             // check if a train is in the station already
-                if (station_occupied) {
-                    System.out.println("TRAIN: STATION " + station_id + " is occupied. TRAIN " + train.train_id + " is waiting");
-                    list_waiting_trains.add(train);
-                    wait();
-                    //System.out.println("Station " + station_id + " is no longer occupied. Train " + train.train_id + " is now entering.");
+            if (station_occupied) { // if occupied, wait
+                System.out.println("TRAIN: STATION " + station_id + " is occupied. TRAIN " + train.train_id + " is waiting");
+                list_waiting_trains.add(train);
+                while (station_occupied && train_boarding) {
+                    train_lock.wait();
                 }
-
-            System.out.println("TRAIN: STATION " + station_id + " is no longer occupied. TRAIN " + train.train_id + " is now entering.");
-
-        // occupy station
-            current_train = train;
-            station_occupied = true;
-            System.out.println("TRAIN: TRAIN " + train.train_id + " has occupied STATION " + station_id + ".");
-            //} </ FIRST SYNC>
-
-        }
-        //start boarding
-            synchronized (current_train) {
-                if (waiting_passengers > 0) {
-                    start_boarding();
-                }
-                else return;
-                current_train.wait(); // wait while passengers are boarding
             }
 
-        //notify next train that the station is now available
-            synchronized (this) {
-                notify();
+            System.out.println("LOCK CHECK 1: TRAIN " + train.train_id);
+
+            synchronized (current_train_lock) {
+                System.out.println("LOCK CHECK 2: TRAIN " + train.train_id);
+                // occupy station
+                if(!station_occupied){
+                    // remove train from waiting trains
+                        System.out.println("TRAIN: STATION " + station_id + " is no longer occupied. TRAIN " + train.train_id + " is now entering.");
+                        station_occupied = true;
+                        current_train = train;
+                        list_waiting_trains.remove(current_train);
+                        System.out.println("TRAIN: TRAIN " + train.train_id + " has occupied STATION " + station_id + ".");
+                    // release previously boarded passengers
+                        current_train.available_seats = current_train.max_seats;
+                    // if there are waiting passengers, board
+                        if (waiting_passengers>0) {
+                            // start boarding
+                            start_boarding();
+                            // wait while passengers are boarding
+                            current_train_lock.wait();
+                        } else { // if there are no waiting passengers, leave/do nothing
+
+                        }
+                }
+                System.out.println("LOCK EXIT CHECK: TRAIN " + train.train_id);
+            }
+
+            // leave, release all locks
+                train_boarding = false;
+                station_occupied = false;
+                current_train = null;
+
+            System.out.println("TRAIN: Remaining PASSENGERS: " + waiting_passengers);
+            // notify next train that the station is now available
                 System.out.println("TRAIN: Next TRAIN may now enter");
                 System.out.println("===============================");
-            }
+                train_lock.notify();
+        }
+
+
+        return; // not sure if needed
     }
 
     public void wait_for_train(Passenger passenger) throws InterruptedException {
-        synchronized (this) {
+        synchronized (passenger_lock) {
             // add this passenger to the waiting list
                 waiting_passengers++;
                 list_waiting_passengers.add(passenger);
             // wait for train
-                if (!station_occupied) {
-                    System.out.println("PASSENGER: PASSENGER " + passenger.passenger_id + " is now waiting for the train in STATION " + station_id + ".");
-                    wait();
+                System.out.println("PASSENGER: PASSENGER " + passenger.passenger_id + " is now waiting to be called.");
+            if (train_boarding) {
+                passenger_lock.wait();
+            } else {
+                while (!train_boarding) {
+                    passenger_lock.wait();
                 }
-                else if (!train_boarding){
-                    System.out.println("PASSENGER: STATION " + station_id + " is now occupied. PASSENGER" + passenger.passenger_id + " waiting for boarding.");
-                    wait();
-                }
-
+            }
             // board
-                if(current_train!=null) {
-                    System.out.println("PASSENGER: PASSENGER " + passenger.passenger_id + " has been called to board");
-                    on_board();
-                }
+                System.out.println("PASSENGER: PASSENGER " + passenger.passenger_id + " has been called to board");
+                on_board();
         }
     }
 
     private void start_boarding() {
-        System.out.println("START_BOARDING: TRAIN " + current_train.train_id + " has started boarding.");
-        synchronized (this) {
+        synchronized (passenger_lock) {
+            System.out.println("START_BOARDING: TRAIN " + current_train.train_id + " has started boarding.");
             train_boarding = true;
-            notify();
+            passenger_lock.notify();
         }
     }
 
     public void on_board() {
-        System.out.println("ON_BOARD: PASSENGER " + list_waiting_passengers.get(0).passenger_id + " is boarding.");
 
-        synchronized (this) {
-            waiting_passengers--;
-            current_train.available_seats--;
-            list_waiting_passengers.remove(0);
-            System.out.println("ON_BOARD: Remaining PASSENGERS: " + waiting_passengers);
+        synchronized (passenger_lock) {
+            System.out.println("ON_BOARD: PASSENGER " + list_waiting_passengers.get(0).passenger_id + " is boarding.");
+            // remove current passenger from waiting passengers
+                waiting_passengers--;
+            // take a seat from train
+                current_train.available_seats--;
+                System.out.println("ON_BOARD: Remaining PASSENGERS: " + waiting_passengers);
+                System.out.println("ON_BOARD: Remaining seats: " + current_train.available_seats);
+            // if there are available seats and there are other waiting passengers
+                if(current_train.available_seats>0 && waiting_passengers>0){
+                    // notify next passenger to board
+                        System.out.println("ON_BOARD: Calling next PASSENGER");
+                        passenger_lock.notify();
+                }
+            // else notify train to leave (and return?)
+                else{
+                    synchronized (current_train_lock){
+                        System.out.println("ON_BOARD, TRAIN LEAVING: TRAIN " + current_train.train_id);
+                        current_train_lock.notify();
+                    }
+                }
         }
-
-        if (waiting_passengers == 0 || current_train.available_seats==0) {
-            System.out.println("TEST");
-            synchronized (current_train) {
-                current_train.notify();
-                System.out.println("ON_BOARD, TRAIN LEAVING: TRAIN " + current_train.train_id + " has left STATION " + station_id);
-                station_occupied = false;
-                train_boarding = false;
-                current_train = null;
-            }
-        } else {
-            synchronized (this) {
-                System.out.println("ON_BOARD: calling next PASSENGER.");
-                notify();
-            }
-        }
-
     }
 
 }
