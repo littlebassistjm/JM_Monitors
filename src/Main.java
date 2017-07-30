@@ -8,8 +8,8 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException {
 
-        int num_passengers=2;
-        int num_trains=1;
+        int num_passengers=3;
+        int num_trains=3;
         int num_max_seats=2;
         int num_stations=1;
 
@@ -17,14 +17,17 @@ public class Main {
         ArrayList<Train> trains = new ArrayList<Train>();
         ArrayList<Passenger> passengers = new ArrayList<>();
 
-        Station station = new Station(1);
+        // create stations
+        for(int i=0; i<num_stations; i++){
+            stations.add(new Station(i+1));
+        }
         // create passenger threads
             for(int i=0; i<num_passengers; i++){
-                passengers.add(new Passenger(station, i+1));
+                passengers.add(new Passenger(stations.get(i%num_stations), i+1));
             }
          // create train threads
             for(int i=0; i<num_trains; i++){
-                trains.add(new Train((i+1),num_max_seats, station));
+                trains.add(new Train((i+1),num_max_seats, stations.get(i%num_stations)));
             }
 
         // START THREADS
