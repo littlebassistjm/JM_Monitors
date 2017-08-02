@@ -5,6 +5,7 @@ public class Passenger extends Thread{
 
     public Station station;
     public int passenger_id;
+    public int station_to_get_off;
 
     public Passenger(Station station, int passenger_id){
         this.station = station;

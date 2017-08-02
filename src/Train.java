@@ -25,16 +25,17 @@ public class Train extends Thread {
     @Override
     public void run() {
         // while (condition?){station(i%8).load_train(this); }
-        while (true) {
+        //while (true) {
+        while(station_index<num_stations){
         // to do finite version: while (station_index<num_stations){
-            System.out.println("MOVEMENT: Train " + train_id + " is now approaching Station " + current_station.station_id);
+            // TODO: System.out.println("MOVEMENT: Train " + train_id + " is now approaching Station " + current_station.station_id);
             try {
                 this.current_station.load_train(this);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-            System.out.println("MOVEMENT: Train " + train_id + " is going to the next Station.");
+            // TODO: System.out.println("MOVEMENT: Train " + train_id + " is going to the next Station.");
             station_index++;
             current_station = station_list.get(station_index%station_list.size());
         }
