@@ -26,6 +26,7 @@ public class StationObject extends Physics2D implements GameObject {
     private String name;
     private /*String*/ int train_id = 0;
     private String passenger_ids = null;
+    private int available_seats = 0;
 
     public StationObject(float x, float y, String name, int station_object_id){
         super();
@@ -73,13 +74,13 @@ public class StationObject extends Physics2D implements GameObject {
             renderer.getRendIn().drawString(
                 "Train: " + String.valueOf(train_id),
                 (int)(position.getX() + camera.getPosition().getX() + size + 10),
-                    (int)(position.getY() + camera.getPosition().getY() + size / 2 - 5));
+                    (int)(position.getY() + camera.getPosition().getY() + size / 2 - 15));
         }
         else if (train_id==0){
             renderer.getRendIn().drawString(
                     "Train: N/A",
                     (int)(position.getX() + camera.getPosition().getX() + size + 10),
-                    (int)(position.getY() + camera.getPosition().getY() + size / 2 - 5));
+                    (int)(position.getY() + camera.getPosition().getY() + size / 2 - 15));
         }
         // station ID
             renderer.getRendIn().drawString(
@@ -91,14 +92,19 @@ public class StationObject extends Physics2D implements GameObject {
                 renderer.getRendIn().drawString(
                     "Waiting Passengers: " + passenger_ids,
                     (int)(position.getX() + camera.getPosition().getX() + size + 10),
-                        (int)(position.getY() + camera.getPosition().getY() + size / 2 + 10));
+                        (int)(position.getY() + camera.getPosition().getY() + size / 2));
             }
             else {
                 renderer.getRendIn().drawString(
                         "Waiting Passengers: None",
                         (int)(position.getX() + camera.getPosition().getX() + size + 10),
-                        (int)(position.getY() + camera.getPosition().getY() + size / 2 + 10));
+                        (int)(position.getY() + camera.getPosition().getY() + size / 2));
             }
+        // available seats
+            renderer.getRendIn().drawString(
+                    "Available seats: " + available_seats,
+                    (int)(position.getX() + camera.getPosition().getX() + size + 10),
+                    (int)(position.getY() + camera.getPosition().getY() + size / 2 + 15));
     }
 
     @Override
@@ -128,5 +134,13 @@ public class StationObject extends Physics2D implements GameObject {
 
     public void setPassenger_ids(int[] passenger_ids) {
         this.passenger_ids = Arrays.toString(passenger_ids);
+    }
+
+    public int getAvailable_seats() {
+        return available_seats;
+    }
+
+    public void setAvailable_seats(int available_seats) {
+        this.available_seats = available_seats;
     }
 }

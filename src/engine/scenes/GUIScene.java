@@ -19,7 +19,7 @@ import java.util.HashMap;
  */
 public class GUIScene extends GameScene {
 
-    public static final int CENTER_X = (720/2);
+    public static final int CENTER_X = (720/2)-50;
     public static final int CENTER_Y = (480/2);
     public static final int RADIUS = (480/3);
 
